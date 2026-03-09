@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azizbek Khursanov - Portfolio</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Devicon for dev logos -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css">
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Header Section -->
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <div class="brand">
+            <span class="name">{{ t('resume.name') }}</span>
+            <span class="title">{{ t('resume.title').split(' | ')[0] }}</span>
+          </div>
+
+          <div class="nav-controls">
+            <nav class="navigation">
+              <ul>
+                <li v-for="(item, index) in navItems" :key="index">
+                  <a :href="item.link" @click.prevent="scrollToSection(item.link)">{{ item.text }}</a>
+                </li>
+              </ul>
+            </nav>
+
+            <div class="controls">
+              <select class="lang-select" :value="lang" @change="e => changeLanguage(e.target.value)">
+                <option value="en">EN</option>
+                <option value="ru">RU</option>
+                <option value="uz">UZ</option>
+              </select>
+
+              <button class="theme-toggle" @click="toggleTheme"
+                :title="isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+                <i :class="isDark ? 'fas fa-sun' : 'fas fa-moon'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="about">
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-text">
+            <p class="greeting">{{ t('hero.greeting') }}</p>
+            <h1>{{ t('resume.name') }}</h1>
+            <p class="subtitle">{{ t('resume.title') }}</p>
+            <p>{{ t('resume.bio') }}</p>
+
+            <div class="cta-buttons">
+              <a href="#contact" class="btn btn-primary" @click.prevent="scrollToSection('#contact')">
+                {{ t('hero.contactMe') }}
+              </a>
+              <a href="assets/resume.docx" download="Azizbek_Khursanov_Resume.docx" class="btn btn-outline">
+                {{ t('hero.downloadResume') }}
+              </a>
+            </div>
+
+            <div class="social-links-hero">
+              <a :href="t('resume.linkedin')" target="_blank" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+              <a :href="t('resume.github')" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+              <a :href="t('resume.telegram')" target="_blank" title="Telegram"><i class="fab fa-telegram-plane"></i></a>
+              <a :href="'mailto:' + t('resume.email')" title="Email"><i class="fas fa-envelope"></i></a>
+            </div>
+          </div>
+
+          <div class="hero-image">
+            <div class="img-wrapper">
+              <!-- Using the existing avatar.JPG asset -->
+              <img src="assets/avatar.JPG" alt="Profile Photo" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="skills" id="skills">
+      <div class="container">
+        <h2 class="section-title">{{ t('sections.skills') }}</h2>
+        <div class="skills-wrapper">
+          <div v-for="(category, index) in translations[lang].skills" :key="index" class="skill-category">
+            <h3 class="category-title">{{ category.category }}</h3>
+            <div class="skill-grid">
+              <div v-for="(skill, skillIndex) in category.items" :key="skillIndex" class="skill-card">
+                <div class="skill-icon-container">
+                  <i :class="skill.icon"></i>
+                </div>
+                <div class="skill-info">
+                  <span class="skill-name">{{ skill.name }}</span>
+                  <span class="skill-level">{{ skill.level }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section class="experience" id="experience">
+      <div class="container">
+        <h2 class="section-title">{{ t('sections.experience') }}</h2>
+        <div class="timeline">
+          <div v-for="(job, index) in translations[lang].experience" :key="index" class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <h3>{{ job.position }}</h3>
+                <span class="company">
+                  <a v-if="job.companyLink" :href="job.companyLink" target="_blank" rel="noopener noreferrer"
+                    class="company-link">
+                    {{ job.company }} <i class="fas fa-external-link-alt"
+                      style="font-size: 0.8em; margin-left: 4px;"></i>
+                  </a>
+                  <template v-else>{{ job.company }}</template>
+                </span>
+              </div>
+              <div class="timeline-date">{{ job.period }}</div>
+              <div class="timeline-description">
+                <p>{{ job.description }}</p>
+                <ul v-if="job.achievements && job.achievements.length">
+                  <li v-for="(achievement, achieveIndex) in job.achievements" :key="achieveIndex">
+                    {{ achievement }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+      <div class="container">
+        <h2 class="section-title">{{ t('sections.projects') }}</h2>
+        <div class="projects-grid">
+          <div v-for="(project, index) in translations[lang].projects" :key="index" class="project-card">
+            <div class="project-image"
+              @click.stop.prevent="project.currentImageIndex = (project.currentImageIndex + 1) % project.images.length"
+              style="cursor: pointer;">
+              <img :src="project.images[project.currentImageIndex]" :alt="project.title" loading="lazy" />
+              <button class="carousel-btn prev"
+                @click.stop.prevent="project.currentImageIndex = (project.currentImageIndex - 1 + project.images.length) % project.images.length"
+                v-if="project.images && project.images.length > 1">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <button class="carousel-btn next"
+                @click.stop.prevent="project.currentImageIndex = (project.currentImageIndex + 1) % project.images.length"
+                v-if="project.images && project.images.length > 1">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+              <div class="carousel-indicators" v-if="project.images && project.images.length > 1">
+                <span v-for="(img, idx) in project.images" :key="idx"
+                  :class="{ active: project.currentImageIndex === idx }"
+                  @click.stop.prevent="project.currentImageIndex = idx"></span>
+              </div>
+            </div>
+            <div class="project-info">
+              <div class="project-tags">
+                <span v-for="(tag, tagIndex) in project.tags" :key="tagIndex" class="tag">{{ tag }}</span>
+              </div>
+              <h3 class="project-title">{{ project.title }}</h3>
+              <p class="project-description">{{ project.description }}</p>
+              <div class="project-links">
+                <a :href="project.demoLink" class="btn btn-sm btn-primary" target="_blank">Live Demo</a>
+                <a :href="project.codeLink" class="btn btn-sm btn-outline" target="_blank">View Code</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Education Section -->
+    <section class="education" id="education">
+      <div class="container">
+        <h2 class="section-title">{{ t('sections.education') }}</h2>
+        <div class="education-list">
+          <div v-for="(edu, index) in translations[lang].education" :key="index" class="education-item">
+            <div class="education-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="education-content">
+              <h3>{{ edu.degree }}</h3>
+              <div class="institution">{{ edu.institution }}</div>
+              <div class="education-date">{{ edu.period }}</div>
+              <p>{{ edu.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+      <div class="container">
+        <h2 class="section-title">{{ t('sections.contact') }}</h2>
+        <div class="contact-container">
+          <div class="contact-info">
+            <h3>{{ t('contact.getInTouch') }}</h3>
+            <p>{{ t('contact.feelFree') }}</p>
+
+            <div class="contact-item">
+              <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+              <div class="contact-text">
+                <h4>{{ t('contact.email') }}</h4>
+                <a :href="'mailto:' + t('resume.email')">{{ t('resume.email') }}</a>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+              <div class="contact-text">
+                <h4>{{ t('contact.location') }}</h4>
+                <p>{{ t('resume.location') }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-form">
+            <h3>{{ t('contact.sendMessage') }}</h3>
+            <form @submit.prevent="submitForm">
+              <div class="form-group">
+                <label for="name">{{ t('contact.nameLabel') }}</label>
+                <input type="text" id="name" v-model="form.name" required />
+              </div>
+              <div class="form-group">
+                <label for="email">{{ t('contact.emailLabel') }}</label>
+                <input type="email" id="email" v-model="form.email" required />
+              </div>
+              <div class="form-group">
+                <label for="subject">{{ t('contact.subjectLabel') }}</label>
+                <input type="text" id="subject" v-model="form.subject" required />
+              </div>
+              <div class="form-group">
+                <label for="message">{{ t('contact.messageLabel') }}</label>
+                <textarea id="message" v-model="form.message" rows="5" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">{{ t('contact.sendBtn') }}</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <p>&copy; {{ new Date().getFullYear() }} {{ t('resume.name') }}. All Rights Reserved.</p>
+          <div class="footer-links">
+            <a v-for="(item, index) in navItems" :key="index" :href="item.link"
+              @click.prevent="scrollToSection(item.link)">
+              {{ item.text }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+
+</html>
