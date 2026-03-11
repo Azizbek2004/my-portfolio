@@ -899,27 +899,18 @@ section {
 }
 
 @media (max-width: 768px) {
-    .nav-controls {
-        display: none;
-        /* simple mobile version: hide nav except toggle. In a real project a hamburger menu would be added here */
+    .header-content {
+        flex-direction: row;
+        gap: 16px;
     }
 
-    /* Just a quick patch for mobile view here */
-    .header-content {
-        flex-direction: column;
-        gap: 16px;
+    .navigation {
+        display: none !important;
     }
 
     .nav-controls {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .navigation ul {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 12px;
+        align-items: center;
     }
 
     .hero-text h1 {
